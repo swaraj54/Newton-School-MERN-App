@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv'
 import mongoose from 'mongoose';
-import { login, register } from './contollers/User.controller.js';
+import { getCurrentUser, login, register } from './contollers/User.controller.js';
 import cors from 'cors'
 
 const app = express();
@@ -16,6 +16,8 @@ app.get("/", function (req, res) {
 app.post("/register", register)
 
 app.post("/login", login)
+
+app.post("/get-current-user", getCurrentUser)
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
     console.log("Connedted to DB.")

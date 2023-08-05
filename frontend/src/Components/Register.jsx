@@ -21,13 +21,18 @@ const Register = () => {
         event.preventDefault();
         if (userData.name && userData.email && userData.role && userData.password && userData.confirmPassword) {
             if (userData.password === userData.confirmPassword) {
-                const response = await axios.post("http://localhost:8000/register", { userData })
-                if (response.data.status == "Success") {
-                    setUserData({ name: "", email: "", role: "Buyer", password: "", confirmPassword: "" })
-                    toast.success("Registration Successfull!")
-                    route("/login");
-                } else {
-                    toast.error(response.data.message)
+                try {
+                    const response = await axios.post("http://localhost:8000/register", { userData })
+                    console.log(response, "response here")
+                    if (response.data.status == "Success") {
+                        setUserData({ name: "", email: "", role: "Buyer", password: "", confirmPassword: "" })
+                        toast.success("Registration Successfull!")
+                        route("/login");
+                    } else {
+                        toast.error(response.data.message)
+                    }
+                } catch (error) {
+                    toast.error(error.response.data.message)
                 }
             } else {
                 alert("Password and Comfirm Password not matched!!")

@@ -1,5 +1,6 @@
 import User from "../modals/User.modal.js";
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 
 export const register = async (req, res) => {
@@ -44,13 +45,38 @@ export const login = async (req, res) => {
         }
 
         const isPasswordValid = await bcrypt.compare(password, user?.password);
-        console.log(isPasswordValid, "isPasswordValid")
+        console.log(isPasswordValid, user, process.env.JWT_SECRET, "isPasswordValid")
         if (isPasswordValid) {
+            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET)
             // jwt token
-            return res.status(200).json({ status: "Success", message: "Login Successfull." })
+            console.log(token, "token")
+            return res.status(200).json({ status: "Success", message: "Login Successfull.", data: user, token: token })
         } else {
             return res.status(500).json({ status: "error", message: "Password is Wrong." })
         }
+
+    } catch (error) {
+        return res.status(500).json({ status: "error", message: error.message })
+    }
+}
+
+
+
+export const getCurrentUser = async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) {
+            return res.status(404).json({ status: "error", message: "Token is not found!" })
+        }
+
+        const decodedData = jwt.verify(token, process.env.JWT_SECRET)
+
+        const user = await User.findById(decodedData?.userId)
+        if (user) {
+            return res.status(200).json({ message: "Success", data: user })
+        }
+
+        return res.status(404).json({ status: "error", message: "USER is not found!" })
 
     } catch (error) {
         return res.status(500).json({ status: "error", message: error.message })
