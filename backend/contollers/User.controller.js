@@ -37,7 +37,7 @@ export const login = async (req, res) => {
         const { email, password } = req.body.userData;
         if (!email || !password) return res.status(404).json({ status: "error", message: "Fields are missing.." })
 
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ email }).select("_id email name role password")
         console.log(user, "user")
 
         if (!user) {
@@ -49,8 +49,14 @@ export const login = async (req, res) => {
         if (isPasswordValid) {
             const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET)
             // jwt token
+            const finalObject = {
+                name: user?.name,
+                email: user?.email,
+                _id: user?._id,
+                role: user?.role
+            }
             console.log(token, "token")
-            return res.status(200).json({ status: "Success", message: "Login Successfull.", data: user, token: token })
+            return res.status(200).json({ status: "Success", message: "Login Successfull.", data: finalObject, token: token })
         } else {
             return res.status(500).json({ status: "error", message: "Password is Wrong." })
         }
@@ -71,7 +77,7 @@ export const getCurrentUser = async (req, res) => {
 
         const decodedData = jwt.verify(token, process.env.JWT_SECRET)
 
-        const user = await User.findById(decodedData?.userId)
+        const user = await User.findById(decodedData?.userId).select("_id email name role")
         if (user) {
             return res.status(200).json({ message: "Success", data: user })
         }

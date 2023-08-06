@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useEffect, useReducer } from "react";
+import { toast } from "react-hot-toast";
 
 export const AuthContext = createContext();
 
@@ -35,6 +36,7 @@ const AuthProvider = ({ children }) => {
         dispatch({
             type: "LOGOUT"
         })// Over the application
+        toast.success("Logged out Successfully.")
     }
 
     useEffect(() => {
